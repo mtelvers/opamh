@@ -45,9 +45,13 @@ let make_state_cmd =
     Arg.(required & opt (some string) None & info ["o"; "output"] ~docv:"FILENAME"
       ~doc)
   in
+  let quiet =
+    let doc = "No output" in
+    Arg.(value & flag & info ["quiet"] ~docv:"QUIET" ~doc)
+  in
   let doc = "Reconstruct the opam state from the installed packages" in
   let info = Cmd.info "make-state" ~doc in
-  Cmd.v info Term.(const Opam.dump_state $ file)
+  Cmd.v info Term.(const Opam.dump_state $ file $ quiet)
 
 let main_cmd =
   let doc = "Opam hijinx" in

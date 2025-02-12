@@ -104,7 +104,7 @@ let installed_packages () =
   let installed = OpamPackage.Set.to_list state.sel_installed in
   installed
 
-let dump_state output =
+let dump_state output quiet =
   let prefix = Fpath.v (prefix ()) in
   let state_file = Format.asprintf "%a/.opam-switch/switch-state" Fpath.pp prefix in
   let file = OpamFilename.raw state_file in
@@ -116,8 +116,9 @@ let dump_state output =
       OpamFile.SwitchSelections.read_from_string ~filename str) file in
   (* let names = OpamPackage.Set.fold (fun pkg acc -> OpamPackage.to_string pkg :: acc) state.sel_installed [] in *)
   let compiler = OpamPackage.Set.fold (fun pkg acc -> OpamPackage.to_string pkg :: acc) state.sel_compiler [] in
-  List.iter (fun x ->
-    Format.eprintf "SEL_COMPILER: %s\n%!" x) compiler;
+  if not quiet then
+    List.iter (fun x ->
+      Format.eprintf "SEL_COMPILER: %s\n%!" x) compiler;
     
   let packages_dir = Fpath.v (Format.asprintf "%a/.opam-switch/packages" Fpath.pp prefix) in
 
@@ -133,8 +134,10 @@ let dump_state output =
     let sel_compiler = List.filter (fun x ->
       List.mem (OpamPackage.name x) compiler_packages
     ) packages in
-    Format.eprintf "Packages:\n%!";
-    Format.eprintf "[%a]" Fmt.(list ~sep:comma (of_to_string OpamPackage.to_string)) packages;
+    if not quiet then (
+      Format.eprintf "Packages:\n%!";
+      Format.eprintf "[%a]" Fmt.(list ~sep:comma (of_to_string OpamPackage.to_string)) packages
+    );
   let new_state =
     let s = OpamPackage.Set.of_list packages in
     { OpamTypes.sel_installed = s;
